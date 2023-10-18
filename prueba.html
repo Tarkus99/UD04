@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .main {
+            width: 30%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            gap: 10px;
+        }
+
+        .main>* {
+            width: 20%;
+            height: 150px;
+            border-radius: 10px;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .circle {
+            background-color: grey;
+            border-radius: 50%;
+            width: 60%;
+            height: 20%;
+        }
+
+        .red {
+            background-color: red;
+        }
+
+        .green {
+            background-color: green;
+        }
+
+        #error {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translateY(-50%);
+            transform: translateX(-50%);
+            color: red;
+            visibility: hidden;
+            font-size: 4rem
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="error">JUMP START</h1>
+    <div class="main">
+        <div class="l1">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+        <div class="l2">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+        <div class="l3">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+        <div class="l4">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+        <div class="l5">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+    </div>
+    <h1 id="mark">00.000</h1>
+    <h2 id="highscore"></h2>
+    <script>
+        const lights = document.querySelectorAll(".main > div");
+        const error = document.querySelector("#error");
+        const mark = document.querySelector("#mark");
+        const score = document.querySelector("#highscore");
+        let historial = [];
+        let running = false;
+        let done = false;
+        let end = false;
+        let t_start;
+        let t_end;
+
+        const timeouts = [];
+
+        window.addEventListener('click', () => {
+            if (!running)
+                cuentaAtras();
+            else if (end) {
+                reset();
+            } else if (done) {
+                calculate();
+            } else if (running) {
+                failed();
+            }
+        })
+
+        window.addEventListener('keydown', () => {
+            if (!running)
+                cuentaAtras();
+            else if (end) {
+                reset();
+            } else if (done) {
+                t_end = performance.now() - t_start;
+                mark.innerText = t_end;
+                end = true;
+            } else if (running) {
+                clearTimers();
+                end = true;
+                error.style.visibility = "visible";
+            }
+        })
+
+
+        function clear() {
+            for (const l of lights) {
+                l.children[2].classList.remove('red');
+                l.children[3].classList.remove('red');
+            }
+        }
+
+        function clearTimers() {
+            for (const c of timeouts) {
+                clearTimeout(c);
+            }
+        }
+
+        function cuentaAtras() {
+            running = true;
+            let delay = 0;
+            for (const l of lights) {
+                let time = setTimeout(() => {
+                    l.children[2].classList.toggle('red');
+                    l.children[3].classList.toggle('red');
+                }, delay);
+                timeouts.push(time);
+                delay += 1000;
+            }
+
+            setTimeout(() => {
+                if (!end) {
+                    clear();
+                    done = true;
+                    t_start = performance.now();
+                }
+            }, delay + Math.random() * 5000);
+        }
+
+        function reset() {
+            error.style.visibility = "hidden";
+            clear();
+            historial.push(parseInt(mark.innerText));
+            historial.sort((a, b) => a - b);
+            score.innerText = "Best: " + historial[0] + "ms";
+            mark.innerText = "00.000";
+            running = false;
+            done = false;
+            end = false;
+        }
+    </script>
+</body>
+
+</html>
