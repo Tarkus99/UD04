@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Roboto:wght@300&display=swap');
 
         * {
             padding: 0;
@@ -83,10 +83,12 @@
         }
 
         #error {
-            color: red;
+            color: rgb(204, 0, 0);
             opacity: 0;
             font-size: 4rem;
-            transition: opacity 0.5s ease-out;
+            transition: opacity 0.3s ease-out;
+            letter-spacing: 10px;
+            font-family: 'Bruno Ace SC', sans-serif;
         }
 
         #mark {
@@ -162,37 +164,54 @@
         let t_start;
         let t_end;
 
-        const timeouts = [];
+        let timeouts = [];
 
         window.addEventListener('click', () => {
-            if (!running)
+            if (!running) {
                 cuentaAtras();
-            else if (end) {
+                return;
+            }
+            clearTimers();
+            if (end) {
                 reset();
             } else if (done) {
                 t_end = performance.now() - t_start;
                 mark.innerText = t_end;
                 end = true;
             } else if (running) {
-                clearTimers();
                 end = true;
                 error.style.opacity = "1";
             }
         })
 
+        function reset() {
+            error.style.opacity = "0";
+            clearAll();
+            if (parseInt(mark.innerText) < best)
+                best = (parseInt(mark.innerText));
+
+            score.innerText = "Best: " + best + "ms";
+            mark.innerText = "00.000";
+            running = false;
+            done = false;
+            end = false;
+        }
+
         window.addEventListener('keydown', () => {
-            if (!running)
+            if (!running) {
                 cuentaAtras();
-            else if (end) {
+                return;
+            }
+            clearTimers();
+            if (end) {
                 reset();
             } else if (done) {
                 t_end = performance.now() - t_start;
                 mark.innerText = t_end;
                 end = true;
             } else if (running) {
-                clearTimers();
                 end = true;
-                error.style.visibility = "visible";
+                error.style.opacity = "1";
             }
         })
 
@@ -214,6 +233,7 @@
             for (const c of timeouts) {
                 clearTimeout(c);
             }
+            timeouts = [];
         }
 
         function cuentaAtras() {
@@ -233,23 +253,11 @@
                     clear();
                     done = true;
                     t_start = performance.now();
-                    console.time();
                 }
             }, delay + Math.random() * 5000);
         }
 
-        function reset() {
-            error.style.visibility = "hidden";
-            clearAll();
-            if (parseInt(mark.innerText) < best)
-                best = (parseInt(mark.innerText));
 
-            score.innerText = "Best: " + best + "ms";
-            mark.innerText = "00.000";
-            running = false;
-            done = false;
-            end = false;
-        }
     </script>
 </body>
 
