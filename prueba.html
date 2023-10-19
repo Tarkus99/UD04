@@ -24,51 +24,80 @@
         }
 
         .main {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .luces_parent {
             width: 30%;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 10px;
             gap: 10px;
+            height: 40%;
+            position: relative;
         }
 
-        .main>* {
+        .luces_parent>* {
             width: 20%;
-            height: 150px;
-            border-radius: 10px;
-            background-color: black;
+            height: 100%;
+            background-image: url("txt.jpg");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: fill;
             display: flex;
             align-items: center;
             justify-content: space-evenly;
             flex-direction: column;
             gap: 10px;
             padding: 10px;
+            border-radius: 20px;
         }
 
         .circle {
-            background-color: grey;
+            background: rgb(226, 226, 226);
+            background: radial-gradient(circle, rgba(226, 226, 226, 1) 0%, rgba(177, 177, 177, 1) 100%);
             border-radius: 50%;
             width: 60%;
             height: 20%;
         }
 
         .red {
-            background-color: red;
+            background: rgb(232, 157, 157);
+            background: radial-gradient(circle, rgba(232, 157, 157, 1) 0%, rgba(255, 0, 0, 1) 100%);
         }
 
         .green {
-            background-color: green;
+            background: rgb(171, 255, 166);
+            background: radial-gradient(circle, rgba(171, 255, 166, 1) 0%, rgba(28, 226, 43, 1) 100%);
         }
 
         #error {
-            position: absolute;
-            top: 35%;
-            left: 50%;
-            transform: translateY(-50%);
-            transform: translateX(-50%);
             color: red;
-            visibility: hidden;
-            font-size: 4rem
+            opacity: 0;
+            font-size: 4rem;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #mark {
+            font-size: 5rem;
+        }
+
+        #highscore {
+            text-align: center;
+        }
+
+        .barra {
+            position: absolute;
+            height: 30px;
+            width: 90%;
+            background-color: black;
+            z-index: -1;
         }
     </style>
 </head>
@@ -76,45 +105,49 @@
 <body>
     <h1 id="error">JUMP START</h1>
     <div class="main">
-        <div class="l1">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
+        <div class="luces_parent">
+            <div class="barra"></div>
+            <div class="l1">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+            </div>
+            <div class="l2">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+            </div>
+            <div class="l3">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+            </div>
+            <div class="l4">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+            </div>
+            <div class="l5">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+            </div>
         </div>
-        <div class="l2">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
-        <div class="l3">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
-        <div class="l4">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
-        <div class="l5">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
+        <h1 id="mark">00.000</h1>
+        <h2 id="highscore">Best:</h2>
     </div>
-    <h1 id="mark">00.000</h1>
-    <h2 id="highscore"></h2>
+
     <script>
-        const lights = document.querySelectorAll(".main > div");
+        const lights = document.querySelectorAll(".luces_parent > [class^='l']");
         const error = document.querySelector("#error");
         const mark = document.querySelector("#mark");
         const score = document.querySelector("#highscore");
-        let historial = [];
+        let best = 10000;
         let running = false;
         let done = false;
         let end = false;
@@ -129,9 +162,13 @@
             else if (end) {
                 reset();
             } else if (done) {
-                calculate();
+                t_end = performance.now() - t_start;
+                mark.innerText = t_end;
+                end = true;
             } else if (running) {
-                failed();
+                clearTimers();
+                end = true;
+                error.style.opacity = "1";
             }
         })
 
@@ -154,8 +191,14 @@
 
         function clear() {
             for (const l of lights) {
-                l.children[2].classList.remove('red');
-                l.children[3].classList.remove('red');
+                l.children[2].classList.replace('red', 'green');
+                l.children[3].classList.replace('red', 'green');
+            }
+        }
+        function clearAll() {
+            for (const l of lights) {
+                l.children[2].classList.remove('green', 'red');
+                l.children[3].classList.remove('green', 'red');
             }
         }
 
@@ -188,10 +231,11 @@
 
         function reset() {
             error.style.visibility = "hidden";
-            clear();
-            historial.push(parseInt(mark.innerText));
-            historial.sort((a, b) => a - b);
-            score.innerText = "Best: " + historial[0] + "ms";
+            clearAll();
+            if (parseInt(mark.innerText) < best)
+                best = (parseInt(mark.innerText));
+
+            score.innerText = "Best: " + best + "ms";
             mark.innerText = "00.000";
             running = false;
             done = false;
